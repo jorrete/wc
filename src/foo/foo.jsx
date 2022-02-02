@@ -1,5 +1,7 @@
+/* eslint-disable no-unused-vars */
 /** @jsx jsx */
-import WComponent, {jsx} from '../../lib';
+/** @jsxFrag jsxFrag */
+import WComponent, {jsx, jsxFrag} from '../../lib';
 import style from './foo.scss?inline';
 import './style.css';
 
@@ -23,13 +25,6 @@ class Foo extends WComponent {
   };
 
   render({ active, content, count }) {
-    const listeners = {
-      click: () => {
-        console.log('click');
-        this.updateContext({ active: !active, count: count + 1 });
-      },
-    };
-
     return (
       <host
         active={active}
@@ -40,14 +35,27 @@ class Foo extends WComponent {
         <shadow>
           <div>xx</div>
           <style>{style}</style>
-          <button id="innerbutton" listeners={listeners}>clickme</button>
+          <button
+            onClick={() => {
+              console.log('click');
+              this.updateContext({ active: !active, count: count + 1 });
+            }}
+            id="innerbutton"
+          >
+            clickme
+          </button>
           <div>{count.toString()}</div>
           {
             active
               ? (
-                <div>
-                  {content}
-                </div>
+                <>
+                  <div>
+                    {content}
+                  </div>
+                  <div>
+                    {content}
+                  </div>
+                </>
               )
               : (
                 <header>
