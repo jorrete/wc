@@ -3,28 +3,23 @@ import WComponent, {jsx} from '../../lib';
 import style from './foo.scss?inline';
 
 class Foo extends WComponent {
-  static get tag() {
-    return 'wc-foo';
-  }
-
-  static get properties() {
-    return {
-      active: {
-        type: Boolean,
-        attribute: true,
-        reflected: true,
-        value: true,
-      },
-      content: {
-        type: String,
-        value: 'Initial foo222!!',
-      },
-      count: {
-        type: Number,
-        value: 0,
-      },
-    };
-  }
+  static tag = 'wc-foo';
+  static properties = {
+    active: {
+      type: Boolean,
+      attribute: true,
+      reflected: true,
+      value: true,
+    },
+    content: {
+      type: String,
+      value: 'Initial foo222!!',
+    },
+    count: {
+      type: Number,
+      value: 0,
+    },
+  };
 
   render({ active, content, count }) {
     const listeners = {
@@ -43,7 +38,7 @@ class Foo extends WComponent {
       >
         <shadow>
           <style>{style}</style>
-          <button id="innerbutton" listeners={listeners} >clickme</button>
+          <button id="innerbutton" listeners={listeners}>clickme</button>
           <div>{count.toString()}</div>
           {
             active
