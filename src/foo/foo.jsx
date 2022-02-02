@@ -1,6 +1,7 @@
 /** @jsx jsx */
 import WComponent, {jsx} from '../../lib';
 import style from './foo.scss?inline';
+import './style.css';
 
 class Foo extends WComponent {
   static tag = 'wc-foo';
