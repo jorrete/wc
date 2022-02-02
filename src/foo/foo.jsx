@@ -38,6 +38,7 @@ class Foo extends WComponent {
         }}
       >
         <shadow>
+          <div>xx</div>
           <style>{style}</style>
           <button id="innerbutton" listeners={listeners}>clickme</button>
           <div>{count.toString()}</div>
