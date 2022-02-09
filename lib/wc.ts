@@ -32,6 +32,10 @@ interface ElementSeed {
   isFragment?: boolean,
 }
 
+type FunctionComponent<T> = {
+  (arg0: T): ElementSeed
+}
+
 type Node = HTMLElement | ChildNode
 
 /**
@@ -474,4 +478,5 @@ export {
   jsxFrag,
   render,
   ElementSeed,
+  FunctionComponent,
 };

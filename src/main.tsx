@@ -1,10 +1,6 @@
 /** @jsx jsx */
 /** @jsxFrag jsxFrag */
-import WComponent, { jsx, jsxFrag, render, ElementSeed } from '../lib/wc';
-
-interface HellowWorldProps {
-  mongo: string
-}
+import WComponent, { jsx, jsxFrag, render, FunctionComponent } from '../lib/wc';
 
 function FormatBoolean(value: unknown) {
   if (value === '') {
@@ -77,12 +73,11 @@ function FormatBoolean(value: unknown) {
   }
 }).register();
 
-type FunctionComponent = {
-  (arg0: HellowWorldProps): ElementSeed
-  displayName?: string
+interface HellowWorldProps {
+  mongo: string
 }
 
-const One: FunctionComponent = ({ mongo }) => {
+const One: FunctionComponent<HellowWorldProps> = ({ mongo }) => {
   return (
     <div
       style={{
@@ -101,7 +96,7 @@ const One: FunctionComponent = ({ mongo }) => {
   );
 };
 
-const Two: FunctionComponent = ({ mongo }) => {
+function Two({ mongo }: HellowWorldProps) {
   return(
     <div
       style={{
@@ -119,7 +114,7 @@ const Two: FunctionComponent = ({ mongo }) => {
       xxxx
     </div>
   );
-};
+}
 
 document.getElementById('one')?.addEventListener('click', () => {
   render(document.getElementById('content')!, One({ mongo: 'x' }));
