@@ -477,11 +477,11 @@ class WComponent extends HTMLElement {
 
 export {
   WComponent as default,
-  setWCPredicate,
-  jsx,
-  jsxFrag,
-  render,
   ElementSeed,
   FunctionComponent,
   Map,
+  jsx,
+  jsxFrag,
+  render,
+  setWCPredicate,
 };
