@@ -26,7 +26,7 @@ function jsxFrag(
 
 interface ElementSeed {
   type: string,
-  props: object,
+  props: Map,
   children: ElementSeed[],
   isComponent?: boolean,
   isFragment?: boolean,
@@ -192,7 +192,7 @@ function getLiteners(
 }
 
 function removeListeners(
-  element: HTMLElement,
+  element: HTMLElement | ShadowRoot,
   props: Map,
 ) {
   const listeners = getLiteners(props);
@@ -207,7 +207,7 @@ function removeListeners(
 }
 
 function applyListeners(
-  element: HTMLElement,
+  element: HTMLElement | ShadowRoot,
   props: Map,
 ) {
   removeListeners(element, oldProps.get(element));
@@ -224,7 +224,7 @@ function applyListeners(
 }
 
 function applyPropsToShadow(
-  element: HTMLElement,
+  element: HTMLElement | ShadowRoot,
   props: Map,
 ) {
   props = props || {};
@@ -334,18 +334,22 @@ function emptyElement(
     element.removeChild(element.childNodes[from]);
   }
 }
+type properties = {
+  [key: string]: {
+    value: unknown,
+    attribute?: boolean,
+    format?: (arg0: unknown | null) => void,
+  }
+}
 
 class WComponent extends HTMLElement {
   static shadow = null;
 
-  static get tag() {
+  static properties: properties = {};
+
+  static get tag(): string {
     return `${PRE_TAG}-${kebabCase(this.name)}`;
   }
-
-  static get properties() {
-    return {};
-  }
-
   static get observedAttributes() {
     return Object.keys(this.properties)
       .filter((key: string) => this.properties[key]?.attribute === true);
@@ -380,7 +384,7 @@ class WComponent extends HTMLElement {
       applyPropsToElement(this, elementSeed.props as Map);
 
       if (this.shadowRoot) {
-        applyPropsToShadow(this.shadowRoot as HTMLElement, elementSeed.children[0].props as Map);
+        applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props as Map);
         render(this.shadowRoot || this, elementSeed.children[0].children);
       } else {
         render(this, elementSeed.children);
@@ -393,7 +397,10 @@ class WComponent extends HTMLElement {
     _: string | null,
     newValue: string | null,
   ) {
-    const format = this.constructor.properties?.[name].format || function (value: unknown) { return value; };
+    const format = (
+      (this.constructor as typeof WComponent).properties?.[name].format
+      || function (value: unknown) { return value; }
+    );
     const actualValue = this._context[name];
     const formattedValue = format(newValue);
 
@@ -419,9 +426,11 @@ class WComponent extends HTMLElement {
   constructor() {
     super();
 
-    this._context = Object.keys(this.constructor.properties).reduce((result, key) => {
-      const initialValue = this.constructor.properties[key].value;
-      const format = this.constructor.properties[key].format || function (value) { return  value; };
+    const constructor = (this.constructor as typeof WComponent);
+
+    this._context = Object.keys(constructor.properties).reduce((result, key) => {
+      const initialValue = constructor.properties[key].value;
+      const format = constructor.properties[key].format || function (value: unknown) { return  value; };
       const attributeValue = this.getAttribute(key);
       return {
         ...result,
@@ -439,7 +448,7 @@ class WComponent extends HTMLElement {
     const hasShadow = firstChild?.type === 'shadow';
 
     if (hasShadow) {
-      this.attachShadow({ mode: firstChild?.props?.mode || 'open' });
+      this.attachShadow({ mode: (firstChild?.props?.mode as ShadowRootMode) || 'open' });
     } else {
       emptyElement(this);
     }
@@ -460,4 +469,5 @@ export {
   jsx,
   jsxFrag,
   render,
+  ElementSeed,
 };
