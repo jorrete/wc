@@ -314,6 +314,10 @@ function render(
 // eslint-disable-next-line prefer-const
 let PRE_TAG = 'wc';
 
+function setWCPredicate(predicate: string) {
+  PRE_TAG = predicate;
+}
+
 function kebabCase(
   str: string,
 ) {
@@ -465,7 +469,7 @@ class WComponent extends HTMLElement {
 
 export {
   WComponent as default,
-  PRE_TAG,
+  setWCPredicate,
   jsx,
   jsxFrag,
   render,
