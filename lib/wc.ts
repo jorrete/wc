@@ -1,35 +1,8 @@
-type DOMCSSProperties = {
-  [key in keyof Omit<
-  CSSStyleDeclaration,
-  | 'item'
-  | 'setProperty'
-  | 'removeProperty'
-  | 'getPropertyValue'
-  | 'getPropertyPriority'
-  >]?: string | number | null | undefined;
-};
-
-declare interface HTMLAttributes {
-  style?: DOMCSSProperties;
-  update?: any[],
-  class?: string[],
-}
-
-declare namespace JSX {
-  export interface IntrinsicElements {
-    h1: object,
-    div: HTMLAttributes,
-  }
-}
-
-function jsxFrag(children: object[]): object {
-  return {
-    isFragment: true,
-    children,
-  };
-}
-
-function jsx(type: string | unknown, props: object, ...children: object[]): object | object[] {
+function jsx(
+  type: string | unknown,
+  props: object,
+  ...children: object[]
+): object | object[] {
   if (typeof type === 'function') {
     return type(children);
   }
@@ -42,30 +15,24 @@ function jsx(type: string | unknown, props: object, ...children: object[]): obje
   };
 }
 
-interface ElementProps {
-  id?: string,
-  class?: string[],
+function jsxFrag(
+  children: object[],
+): object {
+  return {
+    isFragment: true,
+    children,
+  };
 }
 
 interface ElementSeed {
   type: string,
-  props: ElementProps,
+  props: object,
   children: ElementSeed[],
   isComponent?: boolean,
   isFragment?: boolean,
 }
 
-function addClassToElement(element: HTMLElement, cls: string[]) {
-  element.classList.add(...cls);
-}
-
-function isElementMatch(element: HTMLElement | ChildNode, elementSeed: ElementSeed) {
-  if (element && 'localName' in element && element.localName === elementSeed.type) {
-    return true;
-  }
-
-  return false;
-}
+type Node = HTMLElement | ChildNode
 
 /**
  * Detect fragment and flattern children son we can match actual DOM element
@@ -88,11 +55,11 @@ function flattenElements(
  * Get DOM element childrens from target ignoring empty text nodes
  *
  * @param {HTMLElement | DocumentFragment} target - [TODO:description]
- * @returns {unknown[]} [TODO:description]
+ * @returns {Node[]} [TODO:description]
  */
 function getTargetChildrens(
   target: HTMLElement | DocumentFragment,
-): unknown[] {
+): Node[] {
   return [].slice.call(target.childNodes)
     .reduce((result: ChildNode[], node: ChildNode) => {
       // ignore emtpy text nodes caused by indentation
@@ -109,8 +76,8 @@ type MatchType = 'new' | 'partial' | 'complete';
 
 function getMachElement(
   index: number,
-  targetChildrens: (HTMLElement | ChildNode)[],
-  recycledChildrens: (HTMLElement | ChildNode)[],
+  targetChildrens: Node[],
+  recycledChildrens: Node[],
   elementSeed: ElementSeed,
 ): [HTMLElement | ChildNode, MatchType] {
   for (let i = 0; i < targetChildrens.length; i++) {
@@ -141,19 +108,27 @@ function getMachElement(
   ];
 }
 
-function applyClass(element, cls) {
+type Class = string | string[] | null;
+
+function applyClass(
+  element: HTMLElement,
+  cls: Class,
+) {
   if (cls === null) {
-    element.classList = '';
+    element.removeAttribute('class');
   } else {
-    element.classList = (
-      Array.isArray(cls)
-        ? cls.join(' ')
-        : cls
-    );
+    if (Array.isArray(cls)) {
+      element.classList.add(...cls);
+    } else {
+      element.classList.add(...cls.split(' '));
+    }
   }
 }
 
-function cleanAttributes(element, props) {
+function cleanAttributes(
+  element: HTMLElement,
+  props: object,
+) {
   if (!props) {
     return;
   }
@@ -165,25 +140,43 @@ function cleanAttributes(element, props) {
   }
 }
 
-function applyStyle(element, style) {
+function applyStyle(
+  element: HTMLElement,
+  style: object
+) {
   element.removeAttribute('style');
   if (style !== null) {
     Object.assign(element.style, style);
   }
 }
 
-function applyAttribute(element, name, value) {
+function applyAttribute(
+  element: HTMLElement,
+  name: string,
+  value: unknown,
+) {
   const actualValue = element.getAttribute(name);
   if (value === null) {
     element.removeAttribute(name);
   } else if (String(value) !== String(actualValue)) {
-    element.setAttribute(name, value);
+    element.setAttribute(name, value as string);
   }
 }
 
+// type EventListener = (event: object) => void;
 const oldProps = new WeakMap();
 
-function getLiteners(props) {
+interface Map {
+  [key: string]: unknown
+}
+
+interface Listeners {
+  [key: string]: (event: object) => void
+}
+
+function getLiteners(
+  props: Map,
+): Listeners {
   if (!props) {
     return {};
   }
@@ -198,7 +191,10 @@ function getLiteners(props) {
     },{});
 }
 
-function removeListeners(element, props) {
+function removeListeners(
+  element: HTMLElement,
+  props: Map,
+) {
   const listeners = getLiteners(props);
 
   if (!listeners) {
@@ -210,7 +206,10 @@ function removeListeners(element, props) {
   });
 }
 
-function applyListeners(element, props) {
+function applyListeners(
+  element: HTMLElement,
+  props: Map,
+) {
   removeListeners(element, oldProps.get(element));
 
   const listeners = getLiteners(props);
@@ -224,33 +223,18 @@ function applyListeners(element, props) {
   });
 }
 
-function dependenciesAreEqual(depsA = [], depsB = []) {
-  if (depsA.length !== depsB.length) {
-    throw Error('Dependencies not same length');
-  }
-
-  for (let index = 0; index < depsB.length; index++) {
-    if (depsA[index] !== depsB[index]) {
-      return false;
-    }
-  }
-
-  return true;
-}
-
 function applyPropsToShadow(
-  element: (HTMLElement | ChildNode),
-  props: object,
+  element: HTMLElement,
+  props: Map,
 ) {
   props = props || {};
-  // new props
   applyListeners(element, props);
   oldProps.set(element, props);
 }
 
 function applyPropsToElement(
-  element: (HTMLElement | ChildNode),
-  props: object,
+  element: HTMLElement,
+  props: Map,
 ) {
   props = props || {};
 
@@ -267,10 +251,10 @@ function applyPropsToElement(
     if (name.startsWith('on')) {
       return;
     } else if (name === 'class') {
-      applyClass(element, prop);
+      applyClass(element, prop as Class);
     } else if (name === 'style') {
       // TODO clean old styles
-      applyStyle(element, prop);
+      applyStyle(element, prop as object);
     } else {
       applyAttribute(element, name, prop);
     }
@@ -284,7 +268,7 @@ function render(
 ) {
   elementSeeds = flattenElements(elementSeeds);
   const targetChildrens = getTargetChildrens(target);
-  const recycledChildrens: unknown[] = [];
+  const recycledChildrens: Node[] = [];
 
   // loop over element seeds to reuse or create DOM elements
   for (let i = 0; i < elementSeeds.length; i++) {
@@ -298,7 +282,7 @@ function render(
 
     // HTMLElement
     if (elementSeed.isComponent)  {
-      applyPropsToElement(element, elementSeed?.props);
+      applyPropsToElement(element as HTMLElement, elementSeed?.props as Map);
       render(element as HTMLElement, elementSeed.children);
     // NodeText
     } else {
@@ -322,7 +306,7 @@ function render(
     const children = targetChildrens[i];
 
     if (!recycledChildrens.includes(children)) {
-      children.parentElement.removeChild(children);
+      children?.parentElement?.removeChild(children);
     }
   }
 }
@@ -330,17 +314,22 @@ function render(
 // eslint-disable-next-line prefer-const
 let PRE_TAG = 'wc';
 
-function kebabCase(str) {
+function kebabCase(
+  str: string,
+) {
   return [].map.call(str, (w, i) => {
-    if (i && w === w.toUpperCase()) {
-      return `-${w.toLowerCase()}`;
+    if (i && w === (w as string).toUpperCase()) {
+      return `-${(w as string).toLowerCase()}`;
     }
 
-    return w.toLowerCase();
+    return (w as string).toLowerCase();
   }).join('');
 }
 
-function emptyElement(element, from = 0) {
+function emptyElement(
+  element: HTMLElement,
+  from: number = 0,
+) {
   while (element.childNodes[from]) {
     element.removeChild(element.childNodes[from]);
   }
@@ -358,21 +347,24 @@ class WComponent extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return Object.keys(this.properties).filter((key) => this.properties[key]?.attribute === true);
+    return Object.keys(this.properties)
+      .filter((key: string) => this.properties[key]?.attribute === true);
   }
 
-  _context = {};
+  _context: Map = {};
 
-  render(context) {
+  _timestamp: Date | null = null;
+
+  render(context: Map): ElementSeed {
+    console.log(context); // TODO remove
     throw Error('implement me');
   }
 
-  getElementSeed() {
+  getElementSeed(): ElementSeed {
     return this.render(this._context);
   }
 
-  doRender(elementSeed) {
-
+  doRender(elementSeed: ElementSeed) {
     if (elementSeed.type !== 'host') {
       throw Error('Root tag in render must be "host"');
     }
@@ -385,10 +377,10 @@ class WComponent extends HTMLElement {
         return;
       }
 
-      applyPropsToElement(this, elementSeed.props);
+      applyPropsToElement(this, elementSeed.props as Map);
 
       if (this.shadowRoot) {
-        applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props);
+        applyPropsToShadow(this.shadowRoot as HTMLElement, elementSeed.children[0].props as Map);
         render(this.shadowRoot || this, elementSeed.children[0].children);
       } else {
         render(this, elementSeed.children);
@@ -396,8 +388,12 @@ class WComponent extends HTMLElement {
     });
   }
 
-  attributeChangedCallback(name, oldValue, newValue) {
-    const format = this.constructor.properties?.[name].format || function (value) { return value; };
+  attributeChangedCallback(
+    name: string,
+    _: string | null,
+    newValue: string | null,
+  ) {
+    const format = this.constructor.properties?.[name].format || function (value: unknown) { return value; };
     const actualValue = this._context[name];
     const formattedValue = format(newValue);
 
@@ -410,7 +406,7 @@ class WComponent extends HTMLElement {
     });
   }
 
-  updateContext(newContext) {
+  updateContext(newContext: Map | ((arg0: Map) => Map)) {
     Object.assign(this._context, (
       typeof newContext === 'function'
         ? newContext(this._context)
