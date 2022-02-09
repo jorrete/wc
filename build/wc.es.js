@@ -17,6 +17,183 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+function jsx(type, props, ...children) {
+  if (typeof type === "function") {
+    return type(children);
+  }
+  return {
+    isComponent: true,
+    type,
+    children,
+    props
+  };
+}
+function jsxFrag(children) {
+  return {
+    isFragment: true,
+    children
+  };
+}
+function flattenElements(elementSeeds) {
+  return (Array.isArray(elementSeeds) ? elementSeeds : [elementSeeds]).reduce((result, elementSeed) => [
+    ...result,
+    ...elementSeed.isFragment ? elementSeed.children : [elementSeed]
+  ], []);
+}
+function getTargetChildrens(target) {
+  return [].slice.call(target.childNodes).reduce((result, node) => {
+    if (node.nodeName === "#text" && (node.nodeValue || "").trim().length === 0) {
+      return result;
+    }
+    result.push(node);
+    return result;
+  }, []);
+}
+function getMachElement(index, targetChildrens, recycledChildrens, elementSeed) {
+  for (let i = 0; i < targetChildrens.length; i++) {
+    const element = targetChildrens[i];
+    if (recycledChildrens.includes(element)) {
+      continue;
+    }
+    if ("localName" in element && element.localName === elementSeed.type || (element == null ? void 0 : element.nodeName) === "#text" && !elementSeed.type) {
+      return [
+        element,
+        i === index ? "complete" : "partial"
+      ];
+    }
+  }
+  return [
+    elementSeed.type ? document.createElement(elementSeed.type) : document.createTextNode(""),
+    "new"
+  ];
+}
+function applyClass(element, cls) {
+  if (cls === null) {
+    element.removeAttribute("class");
+  } else {
+    if (Array.isArray(cls)) {
+      element.classList.add(...cls);
+    } else {
+      element.classList.add(...cls.split(" "));
+    }
+  }
+}
+function cleanAttributes(element, props) {
+  if (!props) {
+    return;
+  }
+  for (const key in oldProps.get(element) || {}) {
+    if (!(key in props)) {
+      element.removeAttribute(key);
+    }
+  }
+}
+function applyStyle(element, style) {
+  element.removeAttribute("style");
+  if (style !== null) {
+    Object.assign(element.style, style);
+  }
+}
+function applyAttribute(element, name, value) {
+  const actualValue = element.getAttribute(name);
+  if (value === null) {
+    element.removeAttribute(name);
+  } else if (String(value) !== String(actualValue)) {
+    element.setAttribute(name, value);
+  }
+}
+const oldProps = new WeakMap();
+function getLiteners(props) {
+  if (!props) {
+    return {};
+  }
+  return Object.keys(props).filter((key) => key.startsWith("on")).reduce((result, key) => {
+    return __spreadProps(__spreadValues({}, result), {
+      [key.replace("on", "").toLowerCase()]: props[key]
+    });
+  }, {});
+}
+function removeListeners(element, props) {
+  const listeners = getLiteners(props);
+  if (!listeners) {
+    return;
+  }
+  Object.keys(listeners).forEach((name) => {
+    element.removeEventListener(name, listeners[name]);
+  });
+}
+function applyListeners(element, props) {
+  removeListeners(element, oldProps.get(element));
+  const listeners = getLiteners(props);
+  if (!listeners) {
+    return;
+  }
+  Object.keys(listeners).forEach((name) => {
+    element.addEventListener(name, listeners[name]);
+  });
+}
+function applyPropsToShadow(element, props) {
+  props = props || {};
+  applyListeners(element, props);
+  oldProps.set(element, props);
+}
+function applyPropsToElement(element, props) {
+  props = props || {};
+  cleanAttributes(element, props);
+  applyListeners(element, props);
+  Object.keys(props).forEach((name) => {
+    const prop = props[name];
+    if (name.startsWith("on")) {
+      return;
+    } else if (name === "class") {
+      applyClass(element, prop);
+    } else if (name === "style") {
+      applyStyle(element, prop);
+    } else {
+      applyAttribute(element, name, prop);
+    }
+  });
+  oldProps.set(element, props);
+}
+function render(target, elementSeeds) {
+  var _a;
+  elementSeeds = flattenElements(elementSeeds);
+  const targetChildrens = getTargetChildrens(target);
+  const recycledChildrens = [];
+  for (let i = 0; i < elementSeeds.length; i++) {
+    const elementSeed = elementSeeds[i];
+    const [element, matchType] = getMachElement(i, targetChildrens, recycledChildrens, elementSeed);
+    if (elementSeed.isComponent) {
+      applyPropsToElement(element, elementSeed == null ? void 0 : elementSeed.props);
+      render(element, elementSeed.children);
+    } else {
+      const content = elementSeed;
+      if (element.textContent !== content) {
+        element.textContent = content;
+      }
+    }
+    if (matchType !== "complete") {
+      target.appendChild(element);
+    }
+    if (matchType !== "new") {
+      recycledChildrens.push(element);
+    }
+  }
+  for (let i = 0; i < targetChildrens.length; i++) {
+    const children = targetChildrens[i];
+    if (!recycledChildrens.includes(children)) {
+      (_a = children == null ? void 0 : children.parentElement) == null ? void 0 : _a.removeChild(children);
+    }
+  }
+}
+let PRE_TAG = "wc";
+function setWCPredicate(predicate) {
+  PRE_TAG = predicate;
+}
 function kebabCase(str) {
   return [].map.call(str, (w, i) => {
     if (i && w === w.toUpperCase()) {
@@ -30,225 +207,92 @@ function emptyElement(element, from = 0) {
     element.removeChild(element.childNodes[from]);
   }
 }
-function applyClass(element, cls) {
-  if (cls === null) {
-    element.classList = "";
-  } else {
-    element.classList = Array.isArray(cls) ? cls.join(" ") : cls;
-  }
-}
-function cleanAttributes(node) {
-  while (node.attributes.length > 0) {
-    node.removeAttribute(node.attributes[0].name);
-  }
-}
-function applyStyle(element, style) {
-  if (style === null) {
-    element.removeAttribute("style");
-  } else {
-    Object.assign(element.style, style);
-  }
-}
-function applyAttribute(element, name, value) {
-  const actualValue = element.getAttribute(name);
-  if (value === null && actualValue !== null) {
-    element.removeAttribute(name);
-  } else if (value !== actualValue) {
-    element.setAttribute(name, value);
-  }
-}
-function applyProps(node, props) {
-  if (!props) {
-    return;
-  }
-  cleanAttributes(node);
-  Object.keys(props).forEach((name) => {
-    if (name.startsWith("on")) {
-      return;
-    }
-    switch (name) {
-      case "listeners":
-      case "children":
-        break;
-      case "class":
-        applyClass(node, props[name]);
-        break;
-      case "style":
-        applyStyle(node, props[name]);
-        break;
-      default:
-        applyAttribute(node, name, props[name]);
-        break;
-    }
-  });
-}
-function setLiteners(props) {
-  props.listeners = Object.keys(props).filter((key) => key.startsWith("on")).reduce((result, key) => {
-    return __spreadProps(__spreadValues({}, result), {
-      [key.replace("on", "").toLowerCase()]: props[key]
-    });
-  }, {});
-}
-function applyListeners(element, listeners) {
-  if (!listeners) {
-    return;
-  }
-  Object.keys(listeners).forEach((name) => {
-    element.addEventListener(name, listeners[name]);
-  });
-}
-function removeListeners(element, listeners) {
-  if (!listeners) {
-    return;
-  }
-  Object.keys(listeners).forEach((name) => {
-    element.removeEventListener(name, listeners[name]);
-  });
-}
-function dependenciesAreEqual(depsA, depsB) {
-  if (depsA.length !== depsB.length) {
-    throw Error("Dependencies not same length");
-  }
-  for (let index = 0; index < depsB.length; index++) {
-    if (depsA[index] !== depsB[index]) {
-      return false;
-    }
-  }
-  return true;
-}
-const nodes = new WeakMap();
-function isTextElement(element) {
-  return typeof element === "string";
-}
-function isTextNode(node) {
-  var _a;
-  return ((_a = node == null ? void 0 : node.constructor) == null ? void 0 : _a.name) === "Text";
-}
-function getNode(node, element) {
-  if (Array.isArray(element)) {
-    return [document.createDocumentFragment(), false];
-  }
-  if (isTextElement(element)) {
-    if (isTextNode(node)) {
-      return [node, true];
-    }
-    return [document.createTextNode(""), false];
-  }
-  const canRecycleElement = (node == null ? void 0 : node.localName) === element.type;
-  if (canRecycleElement) {
-    return [node, true];
-  }
-  return [document.createElement(element.type), false];
-}
-function render(doc, elements) {
-  var _a, _b, _c, _d, _e, _f, _g, _h, _i, _j, _k, _l, _m, _n;
-  if ((elements == null ? void 0 : elements.type) === "host") {
-    if (((_b = (_a = nodes == null ? void 0 : nodes.get(doc)) == null ? void 0 : _a.props) == null ? void 0 : _b.dependencies) && ((_c = elements == null ? void 0 : elements.props) == null ? void 0 : _c.dependencies) && dependenciesAreEqual((_e = (_d = nodes.get(doc)) == null ? void 0 : _d.props) == null ? void 0 : _e.dependencies, elements == null ? void 0 : elements.props.dependencies)) {
-      return;
-    }
-    setLiteners(elements.props);
-    applyProps(doc, elements.props);
-    removeListeners(doc, (_g = (_f = nodes == null ? void 0 : nodes.get(doc)) == null ? void 0 : _f.props) == null ? void 0 : _g.listeners);
-    applyListeners(doc, (_h = elements == null ? void 0 : elements.props) == null ? void 0 : _h.listeners);
-    if (((_j = (_i = elements == null ? void 0 : elements.props) == null ? void 0 : _i.children) == null ? void 0 : _j.type) === "shadow") {
-      render(doc.shadowRoot, (_m = (_l = (_k = elements == null ? void 0 : elements.props) == null ? void 0 : _k.children) == null ? void 0 : _l.props) == null ? void 0 : _m.children);
-    } else {
-      render(doc, (_n = elements == null ? void 0 : elements.props) == null ? void 0 : _n.children);
-    }
-    nodes.set(doc, elements);
-    return;
-  }
-  elements = Array.isArray(elements) ? elements : [elements];
-  const childNodes = [].slice.call(doc.childNodes);
-  emptyElement(doc, childNodes.length - (childNodes.length - elements.length));
-  elements.filter(Boolean).forEach((element, index) => {
-    var _a2, _b2, _c2, _d2, _e2, _f2, _g2, _h2;
-    const [node, recycled] = getNode(childNodes[index], element);
-    if (((_b2 = (_a2 = nodes == null ? void 0 : nodes.get(node)) == null ? void 0 : _a2.props) == null ? void 0 : _b2.dependencies) && (element == null ? void 0 : element.props.dependencies) && dependenciesAreEqual((_d2 = (_c2 = nodes.get(node)) == null ? void 0 : _c2.props) == null ? void 0 : _d2.dependencies, element == null ? void 0 : element.props.dependencies)) {
-      return;
-    }
-    if (isTextElement(element)) {
-      if (node.nodeValue !== element) {
-        node.nodeValue = element;
-      }
-    } else if (Array.isArray(element)) {
-      render(node, element);
-    } else {
-      setLiteners(element.props);
-      applyProps(node, element.props);
-      removeListeners(node, (_f2 = (_e2 = nodes == null ? void 0 : nodes.get(node)) == null ? void 0 : _e2.props) == null ? void 0 : _f2.listeners);
-      applyListeners(node, (_g2 = element == null ? void 0 : element.props) == null ? void 0 : _g2.listeners);
-      render(node, (_h2 = element == null ? void 0 : element.props) == null ? void 0 : _h2.children);
-    }
-    nodes.set(node, element);
-    if (!childNodes[index]) {
-      doc.appendChild(node);
-    } else if (!recycled) {
-      childNodes[index].replaceWith(node);
-    }
-  });
-}
 class WComponent extends HTMLElement {
+  constructor() {
+    super();
+    __publicField(this, "_context", {});
+    __publicField(this, "_timestamp", null);
+    var _a, _b;
+    const constructor = this.constructor;
+    this._context = Object.keys(constructor.properties).reduce((result, key) => {
+      var _a2, _b2;
+      const initialValue = constructor.properties[key].value;
+      const format = constructor.properties[key].format || function(value) {
+        return value;
+      };
+      const attributeValue = this.getAttribute(key);
+      return __spreadProps(__spreadValues({}, result), {
+        [key]: (_b2 = (_a2 = attributeValue && format(attributeValue)) != null ? _a2 : initialValue) != null ? _b2 : null
+      });
+    }, {});
+    const elementSeed = this.getElementSeed();
+    const firstChild = (_a = elementSeed.children) == null ? void 0 : _a[0];
+    const hasShadow = (firstChild == null ? void 0 : firstChild.type) === "shadow";
+    if (hasShadow) {
+      this.attachShadow({ mode: ((_b = firstChild == null ? void 0 : firstChild.props) == null ? void 0 : _b.mode) || "open" });
+    } else {
+      emptyElement(this);
+    }
+    this.doRender(elementSeed);
+  }
   static get tag() {
-    return `wc-${kebabCase(this.name)}`;
+    return `${PRE_TAG}-${kebabCase(this.name)}`;
   }
-  static get properties() {
-    return {};
-  }
-  static get observedProps() {
+  static get observedAttributes() {
     return Object.keys(this.properties).filter((key) => {
       var _a;
       return ((_a = this.properties[key]) == null ? void 0 : _a.attribute) === true;
     });
   }
-  static get mode() {
-    return "open";
+  render(context) {
+    console.log(context);
+    throw Error("implement me");
   }
-  static get template() {
-    return null;
+  getElementSeed() {
+    return this.render(this._context);
   }
-  _render(elements) {
+  doRender(elementSeed) {
+    if (elementSeed.type !== "host") {
+      throw Error('Root tag in render must be "host"');
+    }
+    const timestamp = new Date();
+    this._timestamp = timestamp;
     window.requestAnimationFrame(() => {
-      render(this, elements || this.render(this._context));
+      if (timestamp !== this._timestamp) {
+        return;
+      }
+      applyPropsToElement(this, elementSeed.props);
+      if (this.shadowRoot) {
+        applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props);
+        render(this.shadowRoot || this, elementSeed.children[0].children);
+      } else {
+        render(this, elementSeed.children);
+      }
+    });
+  }
+  attributeChangedCallback(name, _, newValue) {
+    var _a;
+    const format = ((_a = this.constructor.properties) == null ? void 0 : _a[name].format) || function(value) {
+      return value;
+    };
+    const actualValue = this._context[name];
+    const formattedValue = format(newValue);
+    if (formattedValue === actualValue) {
+      return;
+    }
+    this.updateContext({
+      [name]: formattedValue
     });
   }
   updateContext(newContext) {
     Object.assign(this._context, typeof newContext === "function" ? newContext(this._context) : newContext);
-    this._render();
-  }
-  constructor() {
-    super();
-    var _a, _b;
-    this._context = {};
-    Object.keys(this.constructor.properties).forEach((key) => {
-      var _a2;
-      this._context[key] = (_a2 = this.constructor.properties[key].value) != null ? _a2 : null;
-    });
-    const elements = this.render(this._context);
-    if (elements.type === "host" && ((_b = (_a = elements == null ? void 0 : elements.props) == null ? void 0 : _a.children) == null ? void 0 : _b.type) === "shadow") {
-      this.attachShadow({ mode: this.constructor.mode });
-    } else if (elements) {
-      emptyElement(this);
-    }
-    this._render(elements);
+    this.doRender(this.getElementSeed());
   }
   static register() {
     customElements.define(this.tag, this);
     console.log("[WComponent][register]", this.tag);
   }
 }
-function jsx(type, props, ...children) {
-  if (typeof type === "function") {
-    return type(children);
-  }
-  return {
-    type,
-    props: __spreadProps(__spreadValues({}, props), {
-      children: children.length > 1 ? children : children[0]
-    })
-  };
-}
-function jsxFrag(children) {
-  return children;
-}
-export { WComponent as default, jsx, jsxFrag, render };
+__publicField(WComponent, "shadow", null);
+__publicField(WComponent, "properties", {});
+export { WComponent as default, jsx, jsxFrag, render, setWCPredicate };
