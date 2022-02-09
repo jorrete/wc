@@ -421,13 +421,17 @@ class WComponent extends HTMLElement {
     });
   }
 
-  updateContext(newContext: Map | ((arg0: Map) => Map)) {
-    Object.assign(this._context, (
+  processContext(newContext: Map | ((arg0: Map) => Map)) {
+    newContext = (
       typeof newContext === 'function'
         ? newContext(this._context)
         : newContext
-    ));
+    );
+    Object.assign(this._context, newContext);
+  }
 
+  updateContext(newContext: Map) {
+    this.processContext(newContext);
     this.doRender(this.getElementSeed());
   }
 
