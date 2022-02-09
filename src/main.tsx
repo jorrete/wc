@@ -1,6 +1,6 @@
 /** @jsx jsx */
 /** @jsxFrag jsxFrag */
-import WComponent, { jsx, jsxFrag, render, FunctionComponent } from '../lib/wc';
+import WComponent, { jsx, jsxFrag, render, FunctionComponent, Map } from '../lib/wc';
 
 function FormatBoolean(value: unknown) {
   if (value === '') {
@@ -8,6 +8,12 @@ function FormatBoolean(value: unknown) {
   }
 
   return false;
+}
+
+interface FooContext extends Map {
+  active: boolean,
+  content: string,
+  count: number,
 }
 
 (class Foo extends WComponent {
@@ -40,7 +46,7 @@ function FormatBoolean(value: unknown) {
     });
   }
 
-  render({ active, content, count }: { active: boolean, content: string, count: number}) {
+  render({ active, content, count }: FooContext) {
     return (
       <host
         active={active ? '' : null}

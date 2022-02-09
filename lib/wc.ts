@@ -24,6 +24,10 @@ function jsxFrag(
   };
 }
 
+interface Map {
+  [key: string]: unknown
+}
+
 interface ElementSeed {
   type: string,
   props: Map,
@@ -169,10 +173,6 @@ function applyAttribute(
 
 // type EventListener = (event: object) => void;
 const oldProps = new WeakMap();
-
-interface Map {
-  [key: string]: unknown
-}
 
 interface Listeners {
   [key: string]: (event: object) => void
@@ -479,4 +479,5 @@ export {
   render,
   ElementSeed,
   FunctionComponent,
+  Map,
 };
