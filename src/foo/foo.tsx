@@ -1,5 +1,5 @@
 /** @jsx jsx */
-import WComponent, {jsx, Map} from '../../lib/wc';
+import WComponent, {jsx, Map} from 'wc';
 import style from './foo.scss?inline';
 import './style.css';
 

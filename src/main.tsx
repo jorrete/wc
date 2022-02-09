@@ -1,7 +1,7 @@
 /** @jsx jsx */
 /** @jsxFrag jsxFrag */
 import './foo';
-import { jsx, jsxFrag, render, FunctionComponent } from '../lib/wc';
+import { jsx, jsxFrag, render, FunctionComponent } from 'wc';
 
 interface HellowWorldProps {
   mongo: string

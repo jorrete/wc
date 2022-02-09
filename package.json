@@ -2,14 +2,7 @@
   "name": "wc",
   "version": "0.1.0",
   "files": ["build"],
-  "main": "./build/wc.umd.js",
-  "module": "./build/wc.es.js",
-  "exports": {
-    ".": {
-      "import": "./build/wc.es.js",
-      "require": "./build/wc.umd.js"
-    }
-  },
+  "main": "./lib/wc.ts",
   "scripts": {
     "dev": "vite",
     "build": "vite build --emptyOutDir",
