@@ -1,12 +1,22 @@
 {
   "name": "wc",
   "version": "0.1.0",
+  "files": ["build"],
+  "main": "./build/wc.umd.js",
+  "module": "./build/wc.es.js",
+  "exports": {
+    ".": {
+      "import": "./build/wc.es.js",
+      "require": "./build/wc.umd.js"
+    }
+  },
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build --emptyOutDir",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "wc": ".",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
     "eslint": "^8.8.0",

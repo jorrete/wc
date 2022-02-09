@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /** @jsx jsx */
 /** @jsxFrag jsxFrag */
-import {jsx, jsxFrag} from '../lib';
+import {jsx, jsxFrag} from 'wc';
 
 function Cuesco() {
   return (

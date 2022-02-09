@@ -6,14 +6,18 @@ module.exports = {
   },
   'extends': [
     'eslint:recommended',
-    'preact',
+    'plugin:@typescript-eslint/recommended',
   ],
   'parserOptions': {
     'ecmaVersion': 'latest',
     'sourceType': 'module'
   },
+  'parser': '@typescript-eslint/parser',
+  'plugins': ['@typescript-eslint'],
   'rules': {
-    'indent': [
+    '@typescript-eslint/no-unused-vars': 'off',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/indent': [
       'error',
       2
     ],

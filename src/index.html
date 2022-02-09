@@ -5,9 +5,16 @@
     <link rel="icon" type="image/x-icon"  href="data:image/gif;base64,R0lGODlhAQABAIAAAP///wAAACH5BAEAAAAALAAAAAABAAEAAAICRAEAOw==" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Vite App</title>
-    <script type="module" src="/main.js" defer></script>
+    <script type="module" src="/main.tsx" defer></script>
     </head>
   <body>
-    <wc-foo>content</wc-foo>
+    <div id="controls">
+      <button id="one">one</button>
+      <button id="two">two</button>
+    </div>
+    <div>
+      <wc-foo count="3"></wc-foo>
+    </div>
+    <div id="content"></div>
   </body>
 </html>

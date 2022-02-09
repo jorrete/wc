@@ -1,7 +1,7 @@
 /* eslint-disable no-unused-vars */
 /** @jsx jsx */
 /** @jsxFrag jsxFrag */
-import WComponent, {jsx, jsxFrag} from '../../lib';
+import WComponent, {jsx, jsxFrag} from 'wc';
 import style from './foo.scss?inline';
 import './style.css';
 
