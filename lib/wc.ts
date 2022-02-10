@@ -66,7 +66,7 @@ function flattenElements(
  * @returns {Node[]} [TODO:description]
  */
 function getTargetChildrens(
-  target: HTMLElement | DocumentFragment,
+  target: HTMLElement | DocumentFragment | Element,
 ): Node[] {
   return [].slice.call(target.childNodes)
     .reduce((result: ChildNode[], node: ChildNode) => {
@@ -267,7 +267,7 @@ function applyPropsToElement(
 }
 
 function render(
-  target: HTMLElement | DocumentFragment,
+  target: HTMLElement | DocumentFragment | Element,
   elementSeeds: ElementSeed | ElementSeed[],
 ) {
   elementSeeds = flattenElements(elementSeeds);
@@ -288,7 +288,7 @@ function render(
     if (elementSeed.isComponent)  {
       applyPropsToElement(element as HTMLElement, elementSeed?.props as Map);
       render(element as HTMLElement, elementSeed.children);
-    // NodeText
+    // Text node
     } else {
       const content = elementSeed as unknown as string;
       if (element.textContent !== content) {

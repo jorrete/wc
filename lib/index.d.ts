@@ -1,3 +1,5 @@
+declare module '*.scss?inline';
+
 type DOMCSSProperties = {
   [key in keyof Omit<
   CSSStyleDeclaration,
@@ -9,13 +11,13 @@ type DOMCSSProperties = {
   >]?: string | number | null | undefined;
 };
 
-declare interface Attributes {
+interface Attributes {
   [key: string]: unknown,
   style?: DOMCSSProperties,
 }
 
 declare namespace JSX {
-  export interface IntrinsicElements {
+  interface IntrinsicElements {
     [key: string]: Attributes;
   }
 }
