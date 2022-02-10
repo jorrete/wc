@@ -342,6 +342,7 @@ function emptyElement(
     element.removeChild(element.childNodes[from]);
   }
 }
+
 type properties = {
   [key: string]: {
     value: unknown,
@@ -380,24 +381,15 @@ class WComponent extends HTMLElement {
     if (elementSeed.type !== 'host') {
       throw Error('Root tag in render must be "host"');
     }
-    const timestamp = new Date();
 
-    this._timestamp  = timestamp;
+    applyPropsToElement(this, elementSeed.props as Map);
 
-    window.requestAnimationFrame(() => {
-      if (timestamp !== this._timestamp) {
-        return;
-      }
-
-      applyPropsToElement(this, elementSeed.props as Map);
-
-      if (this.shadowRoot) {
-        applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props as Map);
-        render(this.shadowRoot || this, elementSeed.children[0].children);
-      } else {
-        render(this, elementSeed.children);
-      }
-    });
+    if (this.shadowRoot) {
+      applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props as Map);
+      render(this.shadowRoot || this, elementSeed.children[0].children);
+    } else {
+      render(this, elementSeed.children);
+    }
   }
 
   attributeChangedCallback(
@@ -432,7 +424,21 @@ class WComponent extends HTMLElement {
 
   updateContext(newContext: Map) {
     this.processContext(newContext);
-    this.doRender(this.getElementSeed());
+
+    const timestamp = new Date();
+    this._timestamp  = timestamp;
+
+    window.requestAnimationFrame(() => {
+      if (timestamp !== this._timestamp) {
+        return;
+      }
+
+      this.doRender(this.getElementSeed());
+    });
+  }
+
+  connectedCallback() {
+    console.log('connected');
   }
 
   constructor() {
