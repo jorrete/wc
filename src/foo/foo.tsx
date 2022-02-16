@@ -61,7 +61,7 @@ class Foo extends WComponent {
           <button
             onclick={() => this.toggleActive()}
           >
-            {active ? 'active' : 'inactive'}
+            {active ? 'deactivate' : 'activate'}
           </button>
           <button
             onclick={() => this.increaseCount()}
