@@ -46,6 +46,12 @@ function Two({ mongo }: HellowWorldProps) {
   );
 }
 
+function Foo() {
+  return (
+    <wc-foo active=""></wc-foo>
+  );
+}
+
 document.getElementById('one')?.addEventListener('click', () => {
   render(document.getElementById('content')!, One({ mongo: 'x' }));
 });
@@ -54,8 +60,12 @@ document.getElementById('two')?.addEventListener('click', () => {
   render(document.getElementById('content')!, Two({ mongo: 'y' }));
 });
 
-setTimeout(() => {
+document.getElementById('modify')?.addEventListener('click', () => {
   document.querySelector('wc-foo')?.setAttribute('count', '5');
   document.querySelector('wc-foo')?.removeAttribute('active');
   document.querySelector('wc-foo')?.setAttribute('count', '7');
+});
+
+setTimeout(() => {
+  render(document.getElementById('wc')!, Foo());
 }, 1000);

@@ -382,7 +382,12 @@ class WComponent extends HTMLElement {
       throw Error('Root tag in render must be "host"');
     }
 
-    applyPropsToElement(this, elementSeed.props as Map);
+    /* initial render happens during constructor execution
+    and during this monment if the elment has any modification
+    attribute/child will fail */
+    if (this.#initialized) {
+      applyPropsToElement(this, elementSeed.props);
+    }
 
     if (this.shadowRoot) {
       applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props as Map);
@@ -392,11 +397,18 @@ class WComponent extends HTMLElement {
     }
   }
 
+  #initialized:boolean = false;
+
   attributeChangedCallback(
     name: string,
     _: string | null,
     newValue: string | null,
   ) {
+
+    if (!this.#initialized) {
+      return;
+    }
+
     const format = (
       (this.constructor as typeof WComponent).properties?.[name].format
       || function (value: unknown) { return value; }
@@ -422,7 +434,7 @@ class WComponent extends HTMLElement {
     Object.assign(this._context, newContext);
   }
 
-  updateContext(newContext: Map) {
+  updateContext(newContext: Map = {}) {
     this.processContext(newContext);
 
     const timestamp = new Date();
@@ -437,25 +449,23 @@ class WComponent extends HTMLElement {
     });
   }
 
-  connectedCallback() {
-    console.log('connected');
-  }
-
   constructor() {
     super();
 
     const constructor = (this.constructor as typeof WComponent);
 
     this._context = Object.keys(constructor.properties).reduce((result, key) => {
+      const isAttribute = constructor.properties[key].attribute;
       const initialValue = constructor.properties[key].value;
       const format = constructor.properties[key].format || function (value: unknown) { return  value; };
       const attributeValue = this.getAttribute(key);
+
       return {
         ...result,
         [key]: (
-          (attributeValue && format(attributeValue))
-          ?? initialValue
-          ?? null
+          isAttribute
+            ? format(attributeValue)
+            : initialValue ?? null
         ),
       };
     }, {});
@@ -472,12 +482,15 @@ class WComponent extends HTMLElement {
     }
 
     this.doRender(elementSeed);
+    this.#initialized = true;
   }
 
   static register() {
-    customElements.define(this.tag, this);
-    // eslint-disable-next-line no-console
-    console.log('[WComponent][register]', this.tag);
+    if (!customElements.get(this.tag)) {
+      customElements.define(this.tag, this);
+      // eslint-disable-next-line no-console
+      console.log('[WComponent][register]', this.tag);
+    }
   }
 }
 

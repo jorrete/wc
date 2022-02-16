@@ -9,3 +9,9 @@
     background-color: blue;
   }
 }
+
+:host([active]) {
+  div {
+    background-color: green;
+  }
+}

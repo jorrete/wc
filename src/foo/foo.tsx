@@ -52,9 +52,6 @@ class Foo extends WComponent {
       <host
         active={active ? '' : null}
         count={count}
-        style={{
-          backgroundColor: active ? 'orange' : null,
-        }}
       >
         <shadow
           mode="open"
@@ -71,7 +68,12 @@ class Foo extends WComponent {
           >
             add
           </button>
-          <div>
+          <div
+            count={count}
+            style={{
+              color: active ? 'orange' : null,
+            }}
+          >
             {`${content} - ${count}`}
           </div>
         </shadow>
