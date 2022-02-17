@@ -61,16 +61,19 @@ class Foo extends WComponent {
         >
           <style>{style}</style>
           <button
+            id="button1"
             onclick={() => this.toggleActive()}
           >
             {active ? 'deactivate' : 'activate'}
           </button>
           <button
+            id="button2"
             onclick={() => this.increaseCount()}
           >
             add
           </button>
           <div
+            onpointerdown={(event: EventTarget) => console.log('down', event)}
             count={count}
             style={{
               color: active ? 'orange' : null,
