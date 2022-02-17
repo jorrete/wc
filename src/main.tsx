@@ -66,6 +66,4 @@ document.getElementById('modify')?.addEventListener('click', () => {
   document.querySelector('wc-foo')?.setAttribute('count', '7');
 });
 
-setTimeout(() => {
-  render(document.getElementById('wc')!, Foo());
-}, 1000);
+render(document.getElementById('wc')!, Foo());

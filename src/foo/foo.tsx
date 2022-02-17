@@ -4,7 +4,8 @@ import style from './foo.scss?inline';
 import './style.css';
 
 function FormatBoolean(value: unknown) {
-  if (value === '') {
+  // if (value === '') {
+  if (typeof value === 'string') {
     return true;
   }
 
@@ -52,6 +53,7 @@ class Foo extends WComponent {
       <host
         active={active ? '' : null}
         count={count}
+        onclick={() => console.log('host')}
       >
         <shadow
           mode="open"

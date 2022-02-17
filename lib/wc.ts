@@ -377,7 +377,9 @@ class WComponent extends HTMLElement {
     return this.render(this._context);
   }
 
-  doRender(elementSeed: ElementSeed) {
+  // #lastElementSeed: ElementSeed | null = null;
+
+  doRender(elementSeed: ElementSeed, applyHost: boolean = true) {
     if (elementSeed.type !== 'host') {
       throw Error('Root tag in render must be "host"');
     }
@@ -385,7 +387,7 @@ class WComponent extends HTMLElement {
     /* initial render happens during constructor execution
     and during this monment if the elment has any modification
     attribute/child will fail */
-    if (this.#initialized) {
+    if (applyHost) {
       applyPropsToElement(this, elementSeed.props);
     }
 
@@ -397,18 +399,18 @@ class WComponent extends HTMLElement {
     }
   }
 
-  #initialized:boolean = false;
+  #connected:boolean = false;
+
+  connectedCallback() {
+    this.#connected = true;
+    this.updateContext();
+  }
 
   attributeChangedCallback(
     name: string,
     _: string | null,
     newValue: string | null,
   ) {
-
-    if (!this.#initialized) {
-      return;
-    }
-
     const format = (
       (this.constructor as typeof WComponent).properties?.[name].format
       || function (value: unknown) { return value; }
@@ -437,16 +439,19 @@ class WComponent extends HTMLElement {
   updateContext(newContext: Map = {}) {
     this.processContext(newContext);
 
+    const elementSeed = this.getElementSeed();
     const timestamp = new Date();
     this._timestamp  = timestamp;
 
-    window.requestAnimationFrame(() => {
-      if (timestamp !== this._timestamp) {
-        return;
-      }
+    if (this.#connected) {
+      window.requestAnimationFrame(() => {
+        if (timestamp !== this._timestamp) {
+          return;
+        }
 
-      this.doRender(this.getElementSeed());
-    });
+        this.doRender(elementSeed);
+      });
+    }
   }
 
   constructor() {
@@ -481,8 +486,7 @@ class WComponent extends HTMLElement {
       emptyElement(this);
     }
 
-    this.doRender(elementSeed);
-    this.#initialized = true;
+    this.doRender(elementSeed, false);
   }
 
   static register() {

@@ -20,4 +20,7 @@ declare namespace JSX {
   interface IntrinsicElements {
     [key: string]: Attributes;
   }
+  export interface ElementChildrenAttribute {
+    children: any;
+  }
 }
