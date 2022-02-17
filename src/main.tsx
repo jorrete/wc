@@ -53,11 +53,11 @@ function Foo() {
 }
 
 document.getElementById('one')?.addEventListener('click', () => {
-  render(document.getElementById('content')!, One({ mongo: 'x' }));
+  render(document.getElementById('content') as HTMLElement, One({ mongo: 'x' }));
 });
 
 document.getElementById('two')?.addEventListener('click', () => {
-  render(document.getElementById('content')!, Two({ mongo: 'y' }));
+  render(document.getElementById('content') as HTMLElement, Two({ mongo: 'y' }));
 });
 
 document.getElementById('modify')?.addEventListener('click', () => {
@@ -66,4 +66,4 @@ document.getElementById('modify')?.addEventListener('click', () => {
   document.querySelector('wc-foo')?.setAttribute('count', '7');
 });
 
-render(document.getElementById('wc')!, Foo());
+render(document.getElementById('wc') as HTMLElement, Foo());
