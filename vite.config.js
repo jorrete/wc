@@ -15,8 +15,4 @@ export default defineConfig({
       fileName: (format) => `wc.${format}.js`,
     },
   },
-  // esbuild: {
-  //   jsxFactory: 'h',
-  //   jsxInject: 'import { h } from \'preact\';',
-  // }
 });

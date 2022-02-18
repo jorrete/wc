@@ -1,4 +1,5 @@
 import './foo';
+
 import { render, FunctionComponent } from 'wc';
 
 interface HellowWorldProps {
