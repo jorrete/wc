@@ -1,7 +1,9 @@
 function jsx(
   type: string | unknown,
-  props: object,
-  ...children: object[]
+  {
+    children = [],
+    ...props
+  },
 ): object | object[] {
   if (typeof type === 'function') {
     return type(children);
@@ -10,7 +12,7 @@ function jsx(
   return {
     isComponent: true,
     type,
-    children,
+    children: Array.isArray(children) ? children : [children],
     props,
   };
 }
@@ -20,7 +22,7 @@ function jsxFrag(
 ): object {
   return {
     isFragment: true,
-    children,
+    children: Array.isArray(children) ? children : [children],
   };
 }
 
@@ -43,7 +45,7 @@ type FunctionComponent<T> = {
 type Node = HTMLElement | ChildNode
 
 /**
- * Detect fragment and flattern children son we can match actual DOM element
+ * Detect fragment and flatten children son we can match actual DOM element
  * children with new elements in the loop
  *
  * @param {ElementSeed | ElementSeed[]} elementSeeds - [TODO:description]
@@ -504,7 +506,9 @@ export {
   FunctionComponent,
   Map,
   jsx,
+  jsx as jsxs,
   jsxFrag,
+  jsxFrag as Fragment,
   render,
   setWCPredicate,
 };

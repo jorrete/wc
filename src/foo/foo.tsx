@@ -1,10 +1,8 @@
-/** @jsx jsx */
-import WComponent, {jsx, Map} from 'wc';
+import WComponent, { Map } from 'wc';
 import style from './foo.scss?inline';
 import './style.css';
 
 function FormatBoolean(value: unknown) {
-  // if (value === '') {
   if (typeof value === 'string') {
     return true;
   }

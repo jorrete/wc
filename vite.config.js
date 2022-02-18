@@ -1,8 +1,12 @@
 import { defineConfig } from 'vite';
 import path from 'path';
+import wc from './lib/vite';
 
 export default defineConfig({
   root: 'src',
+  plugins: [
+    wc(),
+  ],
   build: {
     outDir: path.resolve(__dirname, 'build'),
     lib: {

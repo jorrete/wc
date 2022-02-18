@@ -17,32 +17,65 @@ var __spreadValues = (a, b) => {
   return a;
 };
 var __spreadProps = (a, b) => __defProps(a, __getOwnPropDescs(b));
+var __objRest = (source, exclude) => {
+  var target = {};
+  for (var prop in source)
+    if (__hasOwnProp.call(source, prop) && exclude.indexOf(prop) < 0)
+      target[prop] = source[prop];
+  if (source != null && __getOwnPropSymbols)
+    for (var prop of __getOwnPropSymbols(source)) {
+      if (exclude.indexOf(prop) < 0 && __propIsEnum.call(source, prop))
+        target[prop] = source[prop];
+    }
+  return target;
+};
 var __publicField = (obj, key, value) => {
   __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
   return value;
 };
-function jsx(type, props, ...children) {
+var __accessCheck = (obj, member, msg) => {
+  if (!member.has(obj))
+    throw TypeError("Cannot " + msg);
+};
+var __privateGet = (obj, member, getter) => {
+  __accessCheck(obj, member, "read from private field");
+  return getter ? getter.call(obj) : member.get(obj);
+};
+var __privateAdd = (obj, member, value) => {
+  if (member.has(obj))
+    throw TypeError("Cannot add the same private member more than once");
+  member instanceof WeakSet ? member.add(obj) : member.set(obj, value);
+};
+var __privateSet = (obj, member, value, setter) => {
+  __accessCheck(obj, member, "write to private field");
+  setter ? setter.call(obj, value) : member.set(obj, value);
+  return value;
+};
+var _connected;
+function jsx(type, _a) {
+  var _b = _a, {
+    children = []
+  } = _b, props = __objRest(_b, [
+    "children"
+  ]);
   if (typeof type === "function") {
     return type(children);
   }
   return {
     isComponent: true,
     type,
-    children,
+    children: Array.isArray(children) ? children : [children],
     props
   };
 }
 function jsxFrag(children) {
   return {
     isFragment: true,
-    children
+    children: Array.isArray(children) ? children : [children]
   };
 }
 function flattenElements(elementSeeds) {
-  return (Array.isArray(elementSeeds) ? elementSeeds : [elementSeeds]).reduce((result, elementSeed) => [
-    ...result,
-    ...elementSeed.isFragment ? elementSeed.children : [elementSeed]
-  ], []);
+  return (Array.isArray(elementSeeds) ? elementSeeds : [elementSeeds]).reduce((result, elementSeed) => [...result, ...elementSeed.isFragment ? elementSeed.children : [elementSeed]], []);
 }
 function getTargetChildrens(target) {
   return [].slice.call(target.childNodes).reduce((result, node) => {
@@ -60,16 +93,10 @@ function getMachElement(index, targetChildrens, recycledChildrens, elementSeed) 
       continue;
     }
     if ("localName" in element && element.localName === elementSeed.type || (element == null ? void 0 : element.nodeName) === "#text" && !elementSeed.type) {
-      return [
-        element,
-        i === index ? "complete" : "partial"
-      ];
+      return [element, i === index ? "complete" : "partial"];
     }
   }
-  return [
-    elementSeed.type ? document.createElement(elementSeed.type) : document.createTextNode(""),
-    "new"
-  ];
+  return [elementSeed.type ? document.createElement(elementSeed.type) : document.createTextNode(""), "new"];
 }
 function applyClass(element, cls) {
   if (cls === null) {
@@ -212,28 +239,31 @@ class WComponent extends HTMLElement {
     super();
     __publicField(this, "_context", {});
     __publicField(this, "_timestamp", null);
+    __privateAdd(this, _connected, false);
     var _a, _b;
     const constructor = this.constructor;
     this._context = Object.keys(constructor.properties).reduce((result, key) => {
-      var _a2, _b2;
+      const isAttribute = constructor.properties[key].attribute;
       const initialValue = constructor.properties[key].value;
       const format = constructor.properties[key].format || function(value) {
         return value;
       };
       const attributeValue = this.getAttribute(key);
       return __spreadProps(__spreadValues({}, result), {
-        [key]: (_b2 = (_a2 = attributeValue && format(attributeValue)) != null ? _a2 : initialValue) != null ? _b2 : null
+        [key]: isAttribute ? format(attributeValue) : initialValue != null ? initialValue : null
       });
     }, {});
     const elementSeed = this.getElementSeed();
     const firstChild = (_a = elementSeed.children) == null ? void 0 : _a[0];
     const hasShadow = (firstChild == null ? void 0 : firstChild.type) === "shadow";
     if (hasShadow) {
-      this.attachShadow({ mode: ((_b = firstChild == null ? void 0 : firstChild.props) == null ? void 0 : _b.mode) || "open" });
+      this.attachShadow({
+        mode: ((_b = firstChild == null ? void 0 : firstChild.props) == null ? void 0 : _b.mode) || "open"
+      });
     } else {
       emptyElement(this);
     }
-    this.doRender(elementSeed);
+    this.doRender(elementSeed, false);
   }
   static get tag() {
     return `${PRE_TAG}-${kebabCase(this.name)}`;
@@ -251,24 +281,23 @@ class WComponent extends HTMLElement {
   getElementSeed() {
     return this.render(this._context);
   }
-  doRender(elementSeed) {
+  doRender(elementSeed, applyHost = true) {
     if (elementSeed.type !== "host") {
       throw Error('Root tag in render must be "host"');
     }
-    const timestamp = new Date();
-    this._timestamp = timestamp;
-    window.requestAnimationFrame(() => {
-      if (timestamp !== this._timestamp) {
-        return;
-      }
+    if (applyHost) {
       applyPropsToElement(this, elementSeed.props);
-      if (this.shadowRoot) {
-        applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props);
-        render(this.shadowRoot || this, elementSeed.children[0].children);
-      } else {
-        render(this, elementSeed.children);
-      }
-    });
+    }
+    if (this.shadowRoot) {
+      applyPropsToShadow(this.shadowRoot, elementSeed.children[0].props);
+      render(this.shadowRoot || this, elementSeed.children[0].children);
+    } else {
+      render(this, elementSeed.children);
+    }
+  }
+  connectedCallback() {
+    __privateSet(this, _connected, true);
+    this.updateContext();
   }
   attributeChangedCallback(name, _, newValue) {
     var _a;
@@ -284,15 +313,32 @@ class WComponent extends HTMLElement {
       [name]: formattedValue
     });
   }
-  updateContext(newContext) {
-    Object.assign(this._context, typeof newContext === "function" ? newContext(this._context) : newContext);
-    this.doRender(this.getElementSeed());
+  processContext(newContext) {
+    newContext = typeof newContext === "function" ? newContext(this._context) : newContext;
+    Object.assign(this._context, newContext);
+  }
+  updateContext(newContext = {}) {
+    this.processContext(newContext);
+    const elementSeed = this.getElementSeed();
+    const timestamp = new Date();
+    this._timestamp = timestamp;
+    if (__privateGet(this, _connected)) {
+      window.requestAnimationFrame(() => {
+        if (timestamp !== this._timestamp) {
+          return;
+        }
+        this.doRender(elementSeed);
+      });
+    }
   }
   static register() {
-    customElements.define(this.tag, this);
-    console.log("[WComponent][register]", this.tag);
+    if (!customElements.get(this.tag)) {
+      customElements.define(this.tag, this);
+      console.log("[WComponent][register]", this.tag);
+    }
   }
 }
+_connected = new WeakMap();
 __publicField(WComponent, "shadow", null);
 __publicField(WComponent, "properties", {});
-export { WComponent as default, jsx, jsxFrag, render, setWCPredicate };
+export { jsxFrag as Fragment, WComponent as default, jsx, jsxFrag, jsx as jsxs, render, setWCPredicate };

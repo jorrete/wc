@@ -1,7 +1,5 @@
-/** @jsx jsx */
-/** @jsxFrag jsxFrag */
 import './foo';
-import { jsx, jsxFrag, render, FunctionComponent } from 'wc';
+import { render, FunctionComponent } from 'wc';
 
 interface HellowWorldProps {
   mongo: string
@@ -16,11 +14,14 @@ const One: FunctionComponent<HellowWorldProps> = ({ mongo }) => {
       test="3"
       gonto="3"
       onclick={() => {
-        console.log('clic');
+        console.log('click');
       }}
     >
       <div>
         {`mongo ${mongo}`}
+      </div>
+      <div>
+        2
       </div>
     </div>
   );
@@ -48,7 +49,7 @@ function Two({ mongo }: HellowWorldProps) {
 
 function Foo() {
   return (
-    <wc-foo active=""></wc-foo>
+    <wc-foo active="" count="1"></wc-foo>
   );
 }
 

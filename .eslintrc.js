@@ -21,6 +21,10 @@ module.exports = {
       'error',
       2
     ],
+    'object-curly-spacing': [
+      'error',
+      'always',
+    ],
     'linebreak-style': [
       'error',
       'unix'
@@ -35,7 +39,7 @@ module.exports = {
     ],
     'no-multiple-empty-lines': [
       'error',
-      { 'max': 1, 'maxBOF': 1},
+      { 'max': 1, 'maxBOF': 1 },
     ],
   }
 };
