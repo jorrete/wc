@@ -1,4 +1,4 @@
-import type { Plugin, ResolvedConfig } from 'vite';
+import type { PluginOption, ResolvedConfig } from 'vite';
 import type { FilterPattern } from '@rollup/pluginutils';
 import type { ParserPlugin } from '@babel/parser';
 
@@ -32,7 +32,7 @@ export interface WcPluginOptions {
 export default function wcPlugin({
   include,
   exclude,
-}: WcPluginOptions = {}): Plugin[] {
+}: WcPluginOptions = {}): PluginOption[] {
   let config: ResolvedConfig;
 
   const shouldTransform = createFilter(
@@ -43,7 +43,7 @@ export default function wcPlugin({
   const ID: string = 'wc/jsx-runtime';
   const PATH: string = 'wc';
 
-  const jsxPlugin: Plugin = {
+  const jsxPlugin: PluginOption = {
     name: 'vite:wc-jsx',
     enforce: 'pre',
     config() {

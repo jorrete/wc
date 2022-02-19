@@ -133,7 +133,7 @@ function applyAttribute(element, name, value) {
     element.setAttribute(name, value);
   }
 }
-const oldProps = new WeakMap();
+const oldProps = /* @__PURE__ */ new WeakMap();
 function getLiteners(props) {
   if (!props) {
     return {};

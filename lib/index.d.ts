@@ -13,7 +13,7 @@ type DOMCSSProperties = {
 
 interface Attributes {
   [key: string]: unknown,
-  style?: DOMCSSProperties,
+  style?: DOMCSSProperties | string,
 }
 
 declare namespace JSX {
@@ -21,6 +21,6 @@ declare namespace JSX {
     [key: string]: Attributes;
   }
   export interface ElementChildrenAttribute {
-    children: any;
+    children: unknown;
   }
 }
