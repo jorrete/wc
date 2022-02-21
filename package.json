@@ -5,20 +5,12 @@
   "scripts": {
     "_prepare": "npm run build",
     "dev": "vite",
-    "build": "tsc"
+    "build": "npm install && tsc"
   },
   "files": [
     "lib/",
     "tsconfig.json"
   ],
-  "exports": {
-    ".": {
-      "require": "./dist/lib/wc.ts"
-    },
-    "./vite": {
-      "require": "./dist/lib/vite.ts"
-    }
-  },
   "dependencies": {
     "@babel/core": "^7.17.5",
     "@babel/plugin-transform-react-jsx": "^7.17.3",
