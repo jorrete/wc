@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "main": "./lib/wc.ts",
   "scripts": {
-    "_prepare": "npm run build",
+    "prepare": "npm install && npm run build",
     "dev": "vite",
-    "build": "npm install && tsc"
+    "build": "tsc"
   },
   "files": [
     "lib/",
