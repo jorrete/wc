@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "main": "./lib/wc.ts",
   "scripts": {
-    "prepare": "npm run build",
+    "_prepare": "npm run build",
     "dev": "vite",
     "build": "tsc"
   },
