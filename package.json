@@ -5,17 +5,23 @@
   "scripts": {
     "prepare": "npm run build",
     "dev": "vite",
-    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json"
+    "build": "tsc -p tsconfig.esm.json && tsc -p tsconfig.cjs.json && tsc -p tsconfig.vite.json"
   },
   "exports": {
     ".": {
       "import": "./dist/esm/wc.js",
       "require": "./dist/cjs/wc.js"
+    },
+    "./vite": {
+      "require": "./dist/vite/vite.js"
     }
   },
   "files": [
     "lib/",
-    "tsconfig.json"
+    "tsconfig.json",
+    "tsconfig.esm.json",
+    "tsconfig.cjs.json",
+    "tsconfig.vite.json"
   ],
   "dependencies": {
     "@babel/core": "^7.17.5",
