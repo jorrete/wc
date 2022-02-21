@@ -6,7 +6,7 @@
     "build:lib:esm": "tsc -p tsconfig.lib.json --outDir dist/esm --module esnext",
     "build:lib:cjs": "tsc -p tsconfig.lib.json --outDir dist/cjs --module commonjs",
     "build:lib": "npm run build:lib:esm && npm run build:lib:cjs",
-    "build:vite": "tsc -p tsconfig.vite.json --outFile vite/index.js --module commonjs",
+    "build:vite": "tsc -p tsconfig.vite.json --outDir . --module commonjs",
     "build": "npm run build:lib && npm run build:vite",
     "prepare": "npm run build",
     "dev": "vite"
@@ -17,8 +17,7 @@
       "require": "./dist/cjs/wc.js"
     },
     "./vite": {
-      "import": "./dist/vite/ems/vite.js",
-      "require": "./dist/vite/cjs/vite.js"
+      "require": "./vite.js"
     }
   },
   "files": [
