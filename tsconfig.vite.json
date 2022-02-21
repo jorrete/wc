@@ -5,8 +5,6 @@
 		"esModuleInterop": true,
     "skipLibCheck": true,
 		"moduleResolution": "Node",
-		"outDir": "dist/vite/",
-		"module": "CommonJS",
 		"declaration": true
 	},
   "include": [
