@@ -10,7 +10,7 @@
     "build:vite:cjs": "tsc -p tsconfig.vite.json --outDir dist/vite/cjs --module commonjs",
     "build:vite": "npm run build:vite:esm && npm run build:vite:cjs",
     "build": "npm run build:lib && npm run build:vite",
-    "prepare": "npm run build",
+    "_prepare": "npm run build",
     "dev": "vite"
   },
   "exports": {
