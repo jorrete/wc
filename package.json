@@ -2,10 +2,15 @@
   "name": "wc",
   "version": "0.1.0",
   "main": "./lib/wc.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/wc.js"
+    }
+  },
   "scripts": {
     "prepare": "npm install && npm run build",
     "dev": "vite",
-    "build": "tsc"
+    "build": "tsc -p tsconfig.esm.json"
   },
   "files": [
     "lib/",
