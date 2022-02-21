@@ -3,14 +3,15 @@
   "version": "0.1.0",
   "main": "./lib/wc.ts",
   "scripts": {
-    "prepare": "npm run build",
-    "dev": "vite",
     "build:lib:esm": "tsc -p tsconfig.lib.json --outDir dist/lib/esm --module esnext",
     "build:lib:cjs": "tsc -p tsconfig.lib.json --outDir dist/lib/cjs --module commonjs",
     "build:lib": "npm run build:lib:esm && npm run build:lib:cjs",
     "build:vite:esm": "tsc -p tsconfig.vite.json --outDir dist/vite/esm --module esnext",
     "build:vite:cjs": "tsc -p tsconfig.vite.json --outDir dist/vite/cjs --module commonjs",
-    "build:vite": "npm run build:vite:esm && npm run build:vite:cjs"
+    "build:vite": "npm run build:vite:esm && npm run build:vite:cjs",
+    "build": "npm run build && npm run build:vite",
+    "prepare": "npm run build",
+    "dev": "vite"
   },
   "exports": {
     ".": {
