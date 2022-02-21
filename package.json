@@ -7,6 +7,10 @@
     "dev": "vite",
     "build": "tsc"
   },
+  "files": [
+    "lib/",
+    "tsconfig.json"
+  ],
   "exports": {
     ".": {
       "require": "./dist/lib/wc.ts"
