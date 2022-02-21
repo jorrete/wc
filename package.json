@@ -1,21 +1,18 @@
 {
   "name": "wc",
   "version": "0.1.0",
-  "files": [
-    "lib"
-  ],
   "main": "./lib/wc.ts",
   "scripts": {
-    "_prepare": "npm run build",
+    "prepare": "npm run build",
     "dev": "vite",
     "build": "tsc"
   },
   "exports": {
     ".": {
-      "import": "./lib/wc.ts"
+      "require": "./dist/lib/wc.ts"
     },
     "./vite": {
-      "import": "./lib/vite.ts"
+      "require": "./dist/lib/vite.ts"
     }
   },
   "dependencies": {
