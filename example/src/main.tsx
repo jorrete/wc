@@ -1,4 +1,4 @@
-// import './foo';
+import './foo';
 
 // import { render, FunctionComponent } from '../lib/wc';
 import { render, FunctionComponent } from 'wc';

@@ -17,6 +17,7 @@ export function parseId(url: string) {
 }
 
 export interface WcPluginOptions {
+  path: string,
   /**
   * RegExp or glob to match files to be transformed
   */
@@ -28,11 +29,15 @@ export interface WcPluginOptions {
   exclude?: FilterPattern;
 }
 
+const ID: string = 'wc/jsx-runtime';
+const PATH: string = 'wc';
+
 // Taken from https://github.com/vitejs/vite/blob/main/packages/plugin-react/src/index.ts
 export default function wcPlugin({
+  path,
   include,
   exclude,
-}: WcPluginOptions = {}): PluginOption[] {
+}: WcPluginOptions = { path: PATH }): PluginOption[] {
   let config: ResolvedConfig;
 
   const shouldTransform = createFilter(
@@ -40,16 +45,13 @@ export default function wcPlugin({
     exclude || [/node_modules/],
   );
 
-  const ID: string = 'wc/jsx-runtime';
-  const PATH: string = 'wc';
-
   const jsxPlugin: PluginOption = {
     name: 'vite:wc-jsx',
     enforce: 'pre',
     config() {
       return {
         optimizeDeps: {
-          include: [PATH],
+          // include: [path],
         },
       };
     },
@@ -64,7 +66,7 @@ export default function wcPlugin({
         return;
       }
 
-      const runtimePath = resolve.sync(PATH, {
+      const runtimePath = resolve.sync(path, {
         basedir: config.root,
       });
       const exports = ['jsx', 'jsxs', 'Fragment'];

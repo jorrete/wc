@@ -1,4 +1,4 @@
-import WComponent, { Map } from '../../lib/wc';
+import WComponent, { Map } from 'wc';
 import style from './foo.scss?inline';
 import './style.css';
 
