@@ -6,14 +6,17 @@
     "lib": ["ESNext", "DOM"],
     "moduleResolution": "Node",
     "strict": true,
-    "sourceMap": true,
+    "sourceMap": false,
     "resolveJsonModule": true,
     "esModuleInterop": true,
-    "noEmit": true,
+    "noEmit": false,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+		"declaration": true,
     "noImplicitReturns": true,
-    "jsx": "preserve"
+    "skipLibCheck": true,
+    "jsx": "preserve",
+		"outDir": "dist/"
   },
   "include": [
     "./src",

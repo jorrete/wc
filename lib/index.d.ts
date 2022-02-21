@@ -1,4 +1,5 @@
 declare module '*.scss?inline';
+declare module '*.css?inline';
 
 type DOMCSSProperties = {
   [key in keyof Omit<
