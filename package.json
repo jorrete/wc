@@ -8,7 +8,8 @@
     "build:lib": "npm run build:lib:esm && npm run build:lib:cjs",
     "build:vite": "tsc -p tsconfig.vite.json --outDir . --module commonjs",
     "build": "npm run build:lib && npm run build:vite",
-    "postinstall": "npm run build",
+    "_postinstall": "npm run build",
+    "prepare": "npm run build",
     "dev": "tsc -p tsconfig.lib.json --outDir dist/esm --module esnext --watch"
   },
   "exports": {
