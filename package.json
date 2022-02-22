@@ -2,6 +2,7 @@
   "name": "wc",
   "version": "0.1.0",
   "main": "./lib/wc.ts",
+  "type": "module",
   "scripts": {
     "build:lib:esm": "tsc -p tsconfig.lib.json --outDir dist/esm --module esnext",
     "build:lib:cjs": "tsc -p tsconfig.lib.json --outDir dist/cjs --module commonjs",
