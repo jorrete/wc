@@ -6,7 +6,7 @@
     "build:lib:esm": "tsc -p tsconfig.lib.json --outDir dist/esm --module esnext",
     "build:lib:cjs": "tsc -p tsconfig.lib.json --outDir dist/cjs --module commonjs",
     "build:lib": "npm run build:lib:esm && npm run build:lib:cjs",
-    "build:vite": "tsc -p tsconfig.vite.json --outDir . --module commonjs",
+    "build:vite": "tsc -p tsconfig.vite.json --outDir . --module esnext",
     "build": "npm run build:lib && npm run build:vite",
     "postinstall": "npm run build",
     "dev": "tsc -p tsconfig.lib.json --outDir dist/esm --module esnext --watch"
@@ -17,7 +17,7 @@
       "require": "./dist/cjs/wc.js"
     },
     "./vite": {
-      "require": "./vite.js"
+      "import": "./vite.js"
     }
   },
   "files": [
