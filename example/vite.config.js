@@ -6,6 +6,8 @@ import wc from '../lib/vite';
 export default defineConfig({
   root: 'src',
   plugins: [
-    wc(),
+    wc({
+      dev: true,
+    }),
   ],
 });

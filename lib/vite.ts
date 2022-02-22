@@ -53,8 +53,8 @@ export default function wcPlugin({
     enforce: 'pre',
     config() {
       return {
-        optimizeDeps: dev ? {} : {
-          include: [PATH],
+        optimizeDeps: {
+          include: dev ? [] : [PATH],
         },
       };
     },
