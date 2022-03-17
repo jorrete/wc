@@ -16,7 +16,7 @@ npm run dev
 ```
 
 ## Example
-```typescript
+```jsx
 import WComponent, { Map } from 'wc';
 import style from './foo.scss?inline';
 import './style.css';
