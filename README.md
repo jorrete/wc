@@ -2,7 +2,7 @@
 
 Microframework for **Web Components** authoring.
 
-Explore the use of typescript and custom JSX parsing and vite.
+Explore the use of typescript, custom JSX parsing and vite.
 
 ## Development and testing
 
