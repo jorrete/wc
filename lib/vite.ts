@@ -141,6 +141,14 @@ export default function wcPlugin({
   return [
     {
       name: 'wc:config',
+      handleHotUpdate({ file, server }) {
+        if (shouldTransform(file)) {
+          server.ws.send({ type: 'full-reload', path: '*' })
+          return []
+        }
+
+        return;
+      },
       config() {
         return {
           resolve: {
